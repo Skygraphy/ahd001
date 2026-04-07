@@ -1,8 +1,16 @@
 <script>
+  import { enhance } from '$app/forms';
+
+  let { form } = $props();
+
+  // Lokale touched-States für clientseitige Inline-Validierung
+  let touched = $state({ name: false, email: false, message: false });
+  let sending = $state(false);
+
+  // Feldwerte für clientseitige Validierung
   let name    = $state('');
   let email   = $state('');
   let message = $state('');
-  let status  = $state('idle'); // 'idle' | 'sending' | 'success' | 'error'
 
   let errors = $derived({
     name:    name.trim().length === 0,
@@ -10,35 +18,21 @@
     message: message.trim().length < 10,
   });
 
-  let touched = $state({ name: false, email: false, message: false });
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    touched = { name: true, email: true, message: true };
-    if (errors.name || errors.email || errors.message) return;
-
-    status = 'sending';
-    try {
-      // TODO: Formspree-Endpunkt — XXXXXXXX durch echte Formspree-ID ersetzen
-      const res = await fetch('https://formspree.io/f/XXXXXXXX', {
-        method: 'POST',
-        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message }),
-      });
-      status = res.ok ? 'success' : 'error';
-    } catch {
-      status = 'error';
-    }
+  function handleEnhance() {
+    sending = true;
+    return async ({ update }) => {
+      sending = false;
+      await update();
+    };
   }
 
   function reset() {
     name = ''; email = ''; message = '';
     touched = { name: false, email: false, message: false };
-    status = 'idle';
   }
 </script>
 
-{#if status === 'success'}
+{#if form?.success}
   <div class="form-success">
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-sand)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
@@ -46,16 +40,22 @@
     </svg>
     <p class="success-title">Nachricht gesendet</p>
     <p class="success-sub">Wir melden uns so bald wie möglich bei Ihnen.</p>
-    <button class="btn-reset" onclick={reset}>Weitere Anfrage</button>
+    <button class="btn-reset" onclick={reset} type="button">Weitere Anfrage</button>
   </div>
 
 {:else}
-  <form class="contact-form" onsubmit={handleSubmit} novalidate>
+  <form
+    method="POST"
+    action="/?/contact"
+    use:enhance={handleEnhance}
+    novalidate
+  >
 
     <div class="field">
       <label for="cf-name">Name</label>
       <input
         id="cf-name"
+        name="name"
         type="text"
         placeholder="Ihr Name"
         autocomplete="name"
@@ -74,6 +74,7 @@
       <label for="cf-email">E-Mail</label>
       <input
         id="cf-email"
+        name="email"
         type="email"
         placeholder="ihre@email.at"
         autocomplete="email"
@@ -92,6 +93,7 @@
       <label for="cf-message">Nachricht</label>
       <textarea
         id="cf-message"
+        name="message"
         rows="5"
         placeholder="Welches Objekt interessiert Sie? Haben Sie besondere Wünsche?"
         bind:value={message}
@@ -105,12 +107,12 @@
       {/if}
     </div>
 
-    {#if status === 'error'}
-      <p class="submit-error">Senden fehlgeschlagen. Bitte versuchen Sie es erneut.</p>
+    {#if form?.error}
+      <p class="submit-error">{form.error}</p>
     {/if}
 
-    <button type="submit" class="btn-submit" disabled={status === 'sending'}>
-      {#if status === 'sending'}
+    <button type="submit" class="btn-submit" disabled={sending}>
+      {#if sending}
         <span class="spinner" aria-hidden="true"></span>
         Wird gesendet…
       {:else}
@@ -126,7 +128,8 @@
 {/if}
 
 <style>
-  .contact-form {
+  .contact-form,
+  form {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
@@ -251,7 +254,6 @@
     cursor: not-allowed;
   }
 
-  /* Spinner */
   .spinner {
     width: 14px;
     height: 14px;
@@ -265,7 +267,6 @@
     to { transform: rotate(360deg); }
   }
 
-  /* Erfolgsmeldung */
   .form-success {
     display: flex;
     flex-direction: column;

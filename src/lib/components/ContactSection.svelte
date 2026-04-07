@@ -1,6 +1,8 @@
 <script>
   import ContactForm from './ContactForm.svelte';
 
+  let { form } = $props();
+
   const phone = '+43 664 512 2640';
   const website = 'altholz-design.at';
   const phoneHref = 'tel:' + phone.replace(/\s/g, '');
@@ -47,7 +49,7 @@
 
     <!-- Rechte Spalte: Formular -->
     <div class="form-col">
-      <ContactForm />
+      <ContactForm {form} />
     </div>
 
   </div>

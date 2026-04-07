@@ -3,7 +3,7 @@
   import ProductGrid from '$lib/components/ProductGrid.svelte';
   import ContactSection from '$lib/components/ContactSection.svelte';
 
-  let { data } = $props();
+  let { data, form } = $props();
 </script>
 
 <svelte:head>
@@ -13,5 +13,5 @@
 <main>
   <Hero />
   <ProductGrid products={data.products} />
-  <ContactSection />
+  <ContactSection {form} />
 </main>
