@@ -40,6 +40,10 @@
 			"continue": false
 		},
 		{
+			"src": "^/?(?:/__data.json)?$",
+			"dest": "/"
+		},
+		{
 			"src": "/.*",
 			"dest": "/![-]/catchall"
 		}
