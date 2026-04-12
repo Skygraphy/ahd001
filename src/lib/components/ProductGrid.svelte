@@ -84,7 +84,7 @@
 <style>
   .products-section {
     padding: 6rem 1.5rem;
-    background-color: var(--color-cream);
+    background-color: var(--color-bg);
   }
 
   @media (min-width: 768px) {
@@ -114,7 +114,7 @@
     font-family: 'Cormorant Garamond', Georgia, ui-serif, serif;
     font-size: clamp(2.5rem, 5vw, 3.5rem);
     font-weight: 400;
-    color: var(--color-nearblack);
+    color: var(--color-cream);
     margin-bottom: 1rem;
     letter-spacing: -0.01em;
   }
@@ -123,7 +123,7 @@
     font-size: 1rem;
     font-weight: 300;
     line-height: 1.7;
-    color: var(--color-midbrown);
+    color: var(--color-lightsand);
   }
 
   .bento-grid {

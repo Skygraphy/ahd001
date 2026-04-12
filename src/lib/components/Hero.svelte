@@ -13,8 +13,10 @@
   );
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <section
   class="hero-section"
+  aria-label="Startbereich"
   style={spotlightStyle}
   onmousemove={handleMouseMove}
 >
@@ -72,6 +74,7 @@
   .hero-bg {
     position: absolute;
     inset: 0;
+    background-color: var(--color-earth);
     background-image: url('https://images.pexels.com/photos/14238329/pexels-photo-14238329.jpeg?auto=compress&cs=tinysrgb&w=1920');
     background-size: cover;
     background-position: center 40%;
@@ -131,6 +134,10 @@
   }
   .deco-line-left  { left: clamp(2rem, 8vw, 6rem); }
   .deco-line-right { right: clamp(2rem, 8vw, 6rem); }
+
+  @media (max-width: 768px) {
+    .deco-line { display: none; }
+  }
 
   /* Dekorative Linien über dem Overlay */
   .deco-line {

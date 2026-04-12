@@ -13,7 +13,7 @@
 
 {#if variant === 1}
   <!-- Tischlampe -->
-  <svg viewBox="0 0 160 200" aria-label="Tischlampe" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
+  <svg viewBox="0 0 160 200" role="img" aria-label="Tischlampe" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
     <ellipse cx="80" cy="105" rx="24" ry="18" style="fill: var(--color-cream)" opacity="0.06"/>
     <path d="M44 110 L116 110 L100 48 L60 48 Z" style="fill: var(--color-sand)" opacity="0.92"/>
     <path d="M62 52 L98 52 L112 106 L48 106 Z" style="fill: var(--color-cream)" opacity="0.06"/>
@@ -29,7 +29,7 @@
 
 {:else if variant === 2}
   <!-- Wandlampe -->
-  <svg viewBox="0 0 160 200" aria-label="Wandlampe" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
+  <svg viewBox="0 0 160 200" role="img" aria-label="Wandlampe" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
     <rect x="108" y="40" width="18" height="100" rx="4" fill="#5C3D2E"/>
     <line x1="117" y1="48" x2="117" y2="132" style="stroke: var(--color-earth)" stroke-width="1.5" opacity="0.5"/>
     <rect x="72" y="78" width="38" height="7" rx="3.5" style="fill: var(--color-brown)"/>
@@ -47,7 +47,7 @@
 
 {:else if variant === 3}
   <!-- Stehlampe -->
-  <svg viewBox="0 0 160 220" aria-label="Stehlampe" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
+  <svg viewBox="0 0 160 220" role="img" aria-label="Stehlampe" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
     <ellipse cx="80" cy="90" rx="34" ry="22" style="fill: var(--color-cream)" opacity="0.05"/>
     <path d="M28 82 Q80 42 132 82 L120 106 Q80 88 40 106 Z" style="fill: var(--color-sand)" opacity="0.92"/>
     <path d="M36 86 Q80 50 124 86 L116 102 Q80 84 44 102 Z" style="fill: var(--color-cream)" opacity="0.07"/>
@@ -63,7 +63,7 @@
 
 {:else if type === 'shelf' || type === 'tray' || type === 'organizer' || type === 'sign'}
   <!-- Regal / Tablett / Organizer / Schild — horizontale Holzplatte -->
-  <svg viewBox="0 0 160 160" aria-label="Holzobjekt" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
+  <svg viewBox="0 0 160 160" role="img" aria-label="Holzobjekt" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
     <!-- Hauptbohle -->
     <rect x="20" y="60" width="120" height="22" rx="4" style="fill: var(--color-brown)"/>
     <!-- Holzmaserung -->
@@ -88,7 +88,7 @@
 
 {:else if type === 'frame' || type === 'mirror'}
   <!-- Bilderrahmen / Spiegel — rechteckiger Rahmen -->
-  <svg viewBox="0 0 160 160" aria-label="Rahmen" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
+  <svg viewBox="0 0 160 160" role="img" aria-label="Rahmen" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
     <!-- Äußerer Rahmen -->
     <rect x="28" y="22" width="104" height="116" rx="5" style="fill: var(--color-brown)"/>
     <!-- Holzmaserung -->
@@ -110,7 +110,7 @@
 
 {:else if type === 'candle' || type === 'clock'}
   <!-- Kerzenhalter / Uhr — runde Holzscheibe -->
-  <svg viewBox="0 0 160 160" aria-label="Holzscheibe" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
+  <svg viewBox="0 0 160 160" role="img" aria-label="Holzscheibe" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
     <!-- Holzscheibe -->
     <circle cx="80" cy="80" r="52" style="fill: var(--color-brown)"/>
     <!-- Jahresringe -->
@@ -129,7 +129,7 @@
 
 {:else}
   <!-- Hocker / Ständer / generisches Holzmöbel -->
-  <svg viewBox="0 0 160 160" aria-label="Holzmöbel" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
+  <svg viewBox="0 0 160 160" role="img" aria-label="Holzmöbel" fill="none" xmlns="http://www.w3.org/2000/svg" class="lamp-svg">
     <!-- Sitzfläche / Platte oben -->
     <rect x="22" y="44" width="116" height="18" rx="4" style="fill: var(--color-brown)"/>
     <line x1="26" y1="50" x2="134" y2="50" style="stroke: var(--color-midbrown)" stroke-width="1" opacity="0.4"/>

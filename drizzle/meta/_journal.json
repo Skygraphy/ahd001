@@ -8,6 +8,20 @@
       "when": 1775568690979,
       "tag": "0000_violet_junta",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1775656584337,
+      "tag": "0001_flashy_rachel_grey",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1744502400000,
+      "tag": "0002_settings",
+      "breakpoints": true
     }
   ]
 }

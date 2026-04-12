@@ -6,6 +6,7 @@
   // Lokale touched-States für clientseitige Inline-Validierung
   let touched = $state({ name: false, email: false, message: false });
   let sending = $state(false);
+  let showForm = $state(false); // nach Erfolg: "Weitere Anfrage" zeigt Formular wieder
 
   // Feldwerte für clientseitige Validierung
   let name    = $state('');
@@ -19,20 +20,23 @@
   });
 
   function handleEnhance() {
+    if (sending) return;
     sending = true;
     return async ({ update }) => {
-      sending = false;
       await update();
+      sending = false;
+      showForm = false;
     };
   }
 
   function reset() {
     name = ''; email = ''; message = '';
     touched = { name: false, email: false, message: false };
+    showForm = true;
   }
 </script>
 
-{#if form?.success}
+{#if form?.success && !showForm}
   <div class="form-success">
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-sand)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
@@ -59,6 +63,7 @@
         type="text"
         placeholder="Ihr Name"
         autocomplete="name"
+        maxlength="100"
         bind:value={name}
         onblur={() => (touched.name = true)}
         class:invalid={touched.name && errors.name}
@@ -78,6 +83,7 @@
         type="email"
         placeholder="ihre@email.at"
         autocomplete="email"
+        maxlength="254"
         bind:value={email}
         onblur={() => (touched.email = true)}
         class:invalid={touched.email && errors.email}
@@ -96,6 +102,7 @@
         name="message"
         rows="5"
         placeholder="Welches Objekt interessiert Sie? Haben Sie besondere Wünsche?"
+        maxlength="2000"
         bind:value={message}
         onblur={() => (touched.message = true)}
         class:invalid={touched.message && errors.message}
@@ -128,7 +135,6 @@
 {/if}
 
 <style>
-  .contact-form,
   form {
     display: flex;
     flex-direction: column;

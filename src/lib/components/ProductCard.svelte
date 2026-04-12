@@ -1,15 +1,20 @@
 <script>
   import LampSVG from './LampSVG.svelte';
+  import ProductImageCarousel from './ProductImageCarousel.svelte';
   let { product } = $props();
 
-  // Lampen-SVG für alle Lampen, Objekt-SVG für den Rest (Modulo 3)
   let svgVariant = $derived(product.type === 'lamp' ? ((product.id - 1) % 3) + 1 : 4);
+  let hasImages  = $derived(product.images?.length > 0);
 </script>
 
 <article class="product-card">
   <div class="card-image">
-    <LampSVG variant={svgVariant} type={product.type} />
-    <div class="image-glow" aria-hidden="true"></div>
+    {#if hasImages}
+      <ProductImageCarousel images={product.images} productName={product.name} />
+    {:else}
+      <LampSVG variant={svgVariant} type={product.type} />
+      <div class="image-glow" aria-hidden="true"></div>
+    {/if}
   </div>
 
   <div class="card-body">
@@ -18,7 +23,7 @@
     <p class="card-description">{product.description}</p>
     <div class="card-footer">
       <span class="card-price">{product.price}</span>
-      <a href="#kontakt" class="card-btn">Anfragen →</a>
+      <a href="/produkte/{product.id}" class="card-btn">Mehr erfahren →</a>
     </div>
   </div>
 </article>
@@ -86,7 +91,7 @@
     font-family: 'Cormorant Garamond', Georgia, ui-serif, serif;
     font-size: 1.35rem;
     font-weight: 500;
-    color: var(--color-nearblack);
+    color: var(--color-cream);
     letter-spacing: -0.01em;
     line-height: 1.2;
   }
@@ -94,7 +99,7 @@
   .card-description {
     font-size: 0.875rem;
     line-height: 1.65;
-    color: var(--color-midbrown);
+    color: var(--color-lightsand);
     flex: 1;
   }
 
@@ -112,7 +117,7 @@
   .card-price {
     font-size: 1.15rem;
     font-weight: 600;
-    color: var(--color-brown);
+    color: #B08255;
     letter-spacing: -0.01em;
   }
 
@@ -121,7 +126,7 @@
     font-weight: 500;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: var(--color-brown);
+    color: #B08255;
     text-decoration: none;
     transition: color 0.2s ease, letter-spacing 0.2s ease;
     padding: 0.5rem 0;
@@ -131,7 +136,7 @@
   }
 
   .card-btn:hover {
-    color: var(--color-earth);
+    color: var(--color-cream);
     letter-spacing: 0.1em;
   }
 
