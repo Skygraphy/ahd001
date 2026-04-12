@@ -5,6 +5,4 @@ build
 .env.*
 !.env.example
 vite.config.js.timestamp-*
-data/
-
 .vercel
