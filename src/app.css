@@ -16,23 +16,24 @@
 }
 
 [data-theme="light"] {
-  --color-beige:   #EDE0CC;
-  --color-surface: #F5EDE0;
-  --color-bg:      #FAF6F0;
-}
-
-[data-theme="light"] body {
-  color: var(--color-nearblack);
+  --color-bg:        #FAF6F0;
+  --color-surface:   #F5EDE0;
+  --color-beige:     #EDE0CC;
+  --color-cream:     #4A2510;
+  --color-lightsand: #6B3E20;
+  --color-sand:      #9B6840;
+  --color-midbrown:  #B8885A;
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]):not([data-theme="light"]) {
-    --color-beige:   #EDE0CC;
-    --color-surface: #F5EDE0;
-    --color-bg:      #FAF6F0;
-  }
-  :root:not([data-theme="dark"]):not([data-theme="light"]) body {
-    color: var(--color-nearblack);
+    --color-bg:        #FAF6F0;
+    --color-surface:   #F5EDE0;
+    --color-beige:     #EDE0CC;
+    --color-cream:     #4A2510;
+    --color-lightsand: #6B3E20;
+    --color-sand:      #9B6840;
+    --color-midbrown:  #B8885A;
   }
 }
 

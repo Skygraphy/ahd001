@@ -1,5 +1,6 @@
 <script>
   import { enhance } from '$app/forms';
+  import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
   let { data } = $props();
 
   function formatPrice(cents) {
@@ -9,14 +10,55 @@
     }) + ',–';
   }
 
+  // Lokale, sortierbare Liste
+  let list = $state([...data.products]);
+  $effect(() => { list = [...data.products]; });
+  let saving = $state(false);
+  let confirmOpen = $state(false);
+  let confirmMsg  = $state('');
+  let pendingForm = null;
+
+  function requestDelete(form, msg) {
+    pendingForm = form;
+    confirmMsg  = msg;
+    confirmOpen = true;
+  }
+
+  function executeDelete() {
+    pendingForm?.requestSubmit();
+    pendingForm = null;
+  }
+
   const PER_PAGE = 10;
   let currentPage = $state(1);
-  const totalPages = $derived(Math.ceil(data.products.length / PER_PAGE));
-  const pageItems  = $derived(
-    data.products.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE)
-  );
+  const totalPages = $derived(Math.ceil(list.length / PER_PAGE));
+  const pageStart  = $derived((currentPage - 1) * PER_PAGE);
+  const pageItems  = $derived(list.slice(pageStart, pageStart + PER_PAGE));
 
   function goTo(page) { currentPage = page; }
+
+  function move(globalIdx, direction) {
+    const targetIdx = globalIdx + direction;
+    if (targetIdx < 0 || targetIdx >= list.length) return;
+
+    const items = [...list];
+    [items[globalIdx], items[targetIdx]] = [items[targetIdx], items[globalIdx]];
+    list = items;
+
+    // Seite mitführen wenn Produkt über Grenze springt
+    const newPage = Math.floor(targetIdx / PER_PAGE) + 1;
+    if (newPage !== currentPage) currentPage = newPage;
+
+    saveOrder();
+  }
+
+  async function saveOrder() {
+    saving = true;
+    const formData = new FormData();
+    list.forEach(p => formData.append('ids', String(p.id)));
+    await fetch('?/reorder', { method: 'POST', body: formData });
+    saving = false;
+  }
 </script>
 
 <svelte:head>
@@ -26,7 +68,10 @@
 <div class="page-header">
   <div>
     <h1 class="page-title">Produkte</h1>
-    <p class="page-subtitle">{data.products.length} Objekte in der Datenbank</p>
+    <p class="page-subtitle">
+      {list.length} Objekte in der Datenbank
+      {#if saving}<span class="saving-hint">· Speichern …</span>{/if}
+    </p>
   </div>
   <a href="/admin/produkte/neu" class="btn-primary">+ Neues Produkt</a>
 </div>
@@ -35,19 +80,46 @@
   <table class="product-table">
     <thead>
       <tr>
+        <th class="th-order"></th>
         <th>Nr.</th>
         <th>Name</th>
         <th>Typ</th>
         <th>Preis</th>
-        <th>Reihenf.</th>
         <th>Sichtbar</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
-      {#each pageItems as product (product.id)}
+      {#each pageItems as product, pageIdx (product.id)}
+        {@const globalIdx = pageStart + pageIdx}
         <tr class:hidden-row={!product.visible}>
-          <td class="cell-id">N° {product.id.toString().padStart(2, '0')}</td>
+          <td class="cell-order">
+            <div class="order-arrows">
+              <button
+                class="arrow-btn"
+                onclick={() => move(globalIdx, -1)}
+                disabled={globalIdx === 0}
+                aria-label="Nach oben"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M18 15l-6-6-6 6"/>
+                </svg>
+              </button>
+              <button
+                class="arrow-btn"
+                onclick={() => move(globalIdx, 1)}
+                disabled={globalIdx === list.length - 1}
+                aria-label="Nach unten"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+          <td class="cell-id">{product.nummer ?? '—'}</td>
           <td class="cell-name">
             <a href="/admin/produkte/{product.id}">{product.name}</a>
           </td>
@@ -55,7 +127,6 @@
             <span class="badge">{product.type}</span>
           </td>
           <td class="cell-price">{formatPrice(product.price_cents)}</td>
-          <td class="cell-sort">{product.sort_order}</td>
           <td class="cell-visible">
             <form method="POST" action="?/toggleVisible" use:enhance>
               <input type="hidden" name="id" value={product.id} />
@@ -72,10 +143,12 @@
           </td>
           <td class="cell-actions">
             <a href="/admin/produkte/{product.id}" class="action-btn">Bearbeiten</a>
-            <form method="POST" action="?/delete" use:enhance
-                  onsubmit={(e) => { if (!confirm(`"${product.name}" wirklich löschen?`)) e.preventDefault(); }}>
+            <form method="POST" action="?/delete" use:enhance>
               <input type="hidden" name="id" value={product.id} />
-              <button type="submit" class="action-btn action-btn--danger">Löschen</button>
+              <button type="button" class="action-btn action-btn--danger"
+                      onclick={(e) => requestDelete(e.currentTarget.closest('form'), `"${product.name}" wirklich löschen?`)}>
+                Löschen
+              </button>
             </form>
           </td>
         </tr>
@@ -112,9 +185,11 @@
   </nav>
 
   <p class="page-info">
-    Seite {currentPage} von {totalPages} &nbsp;·&nbsp; {data.products.length} Objekte
+    Seite {currentPage} von {totalPages} &nbsp;·&nbsp; {list.length} Objekte
   </p>
 {/if}
+
+<ConfirmDialog bind:open={confirmOpen} message={confirmMsg} onConfirm={executeDelete} />
 
 <style>
   .page-header {
@@ -142,7 +217,7 @@
 
   .btn-primary {
     background-color: var(--color-brown);
-    color: var(--color-cream);
+    color: #FAF6F0;
     border-radius: 6px;
     padding: 0.55rem 1.1rem;
     font-size: 0.8rem;
@@ -244,10 +319,49 @@
     color: #B08255;
   }
 
-  .cell-sort {
-    text-align: center;
-    color: var(--color-sand);
-    font-size: 0.8rem;
+  .saving-hint {
+    color: var(--color-midbrown);
+    font-style: italic;
+  }
+
+  .th-order {
+    width: 2.5rem;
+  }
+
+  .cell-order {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .order-arrows {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    align-items: center;
+  }
+
+  .arrow-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 18px;
+    border: none;
+    background: transparent;
+    color: var(--color-midbrown);
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background-color 0.1s ease, color 0.1s ease;
+    padding: 0;
+  }
+
+  .arrow-btn:hover:not(:disabled) {
+    background-color: var(--color-beige);
+    color: var(--color-cream);
+  }
+
+  .arrow-btn:disabled {
+    opacity: 0.2;
+    cursor: default;
   }
 
   .cell-visible {
@@ -272,7 +386,7 @@
   .toggle-btn.active {
     background-color: var(--color-brown);
     border-color: var(--color-brown);
-    color: var(--color-cream);
+    color: #FAF6F0;
   }
 
   .cell-actions {
@@ -354,7 +468,7 @@
   .page-btn.active {
     background-color: var(--color-brown);
     border-color: var(--color-brown);
-    color: var(--color-cream);
+    color: #FAF6F0;
   }
 
   .page-btn:disabled {

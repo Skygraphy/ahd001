@@ -189,7 +189,7 @@
   .page-btn.active {
     background-color: var(--color-brown);
     border-color: var(--color-brown);
-    color: var(--color-cream);
+    color: #FAF6F0;
   }
 
   .page-btn:disabled {

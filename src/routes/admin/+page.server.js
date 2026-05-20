@@ -14,7 +14,22 @@ export async function load() {
   return { products: rows };
 }
 
+
+
 export const actions = {
+  reorder: async ({ request }) => {
+    const data = await request.formData();
+    const ids = data.getAll('ids').map(Number).filter(Boolean);
+    if (!ids.length) return fail(400, { error: 'Keine IDs' });
+
+    const db = getDb(env.DATABASE_URL);
+    await Promise.all(
+      ids.map((id, idx) =>
+        db.update(products).set({ sort_order: idx + 1 }).where(eq(products.id, id))
+      )
+    );
+  },
+
   toggleVisible: async ({ request }) => {
     const data = await request.formData();
     const id = parseInt(data.get('id')?.toString() ?? '');

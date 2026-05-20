@@ -1,10 +1,9 @@
 <script>
   import ContactForm from './ContactForm.svelte';
 
-  let { form } = $props();
+  let { form, defaultMessage = '', contactEmail = 'office@altholz-design.at' } = $props();
 
-  const phone = '+43 664 512 2640';
-  const website = 'altholz-design.at';
+  const phone     = '+43 664 512 2640';
   const phoneHref = 'tel:' + phone.replace(/\s/g, '');
 </script>
 
@@ -27,14 +26,14 @@
       </p>
 
       <div class="contact-details">
-        <a href="https://{website}" class="contact-item" target="_blank" rel="noopener noreferrer">
+        <a href="mailto:{contactEmail}" class="contact-item">
           <span class="contact-icon" aria-hidden="true">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="M2 7l10 7 10-7"/>
             </svg>
           </span>
-          {website}
+          {contactEmail}
         </a>
         <a href={phoneHref} class="contact-item">
           <span class="contact-icon" aria-hidden="true">
@@ -49,7 +48,7 @@
 
     <!-- Rechte Spalte: Formular -->
     <div class="form-col">
-      <ContactForm {form} />
+      <ContactForm {form} {defaultMessage} />
     </div>
 
   </div>
@@ -62,6 +61,22 @@
 </section>
 
 <style>
+  :global([data-theme="light"]) .contact-section {
+    --color-cream:     #FAF6F0;
+    --color-lightsand: #D4B896;
+    --color-sand:      #C8A882;
+    --color-midbrown:  #6B4431;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :global(:root:not([data-theme="dark"]):not([data-theme="light"])) .contact-section {
+      --color-cream:     #FAF6F0;
+      --color-lightsand: #D4B896;
+      --color-sand:      #C8A882;
+      --color-midbrown:  #6B4431;
+    }
+  }
+
   .contact-section {
     background-color: var(--color-nearblack);
     padding: 5rem 1.5rem 3rem;

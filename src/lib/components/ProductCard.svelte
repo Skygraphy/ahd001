@@ -1,16 +1,27 @@
 <script>
   import LampSVG from './LampSVG.svelte';
   import ProductImageCarousel from './ProductImageCarousel.svelte';
+  import ImageLightbox from './ImageLightbox.svelte';
+
   let { product } = $props();
 
-  let svgVariant = $derived(product.type === 'lamp' ? ((product.id - 1) % 3) + 1 : 4);
-  let hasImages  = $derived(product.images?.length > 0);
+  let svgVariant    = $derived(product.type === 'lamp' ? ((product.id - 1) % 3) + 1 : 4);
+  let hasImages     = $derived(product.images?.length > 0);
+  let lightboxOpen  = $state(false);
+  let lightboxIndex = $state(0);
+
+  function openLightbox(idx) { lightboxIndex = idx; lightboxOpen = true; }
+  function closeLightbox()   { lightboxOpen = false; }
 </script>
 
 <article class="product-card">
   <div class="card-image">
     {#if hasImages}
-      <ProductImageCarousel images={product.images} productName={product.name} />
+      <ProductImageCarousel
+        images={product.images}
+        productName={product.name}
+        onImageClick={openLightbox}
+      />
     {:else}
       <LampSVG variant={svgVariant} type={product.type} />
       <div class="image-glow" aria-hidden="true"></div>
@@ -18,15 +29,24 @@
   </div>
 
   <div class="card-body">
-    <span class="card-number">N° {product.id.toString().padStart(2, '0')}</span>
+    <span class="card-number">{product.nummer ?? 'N° ' + product.id.toString().padStart(2, '0')}</span>
     <h3 class="card-title">{product.name}</h3>
     <p class="card-description">{product.description}</p>
     <div class="card-footer">
       <span class="card-price">{product.price}</span>
-      <a href="/produkte/{product.id}" class="card-btn">Mehr erfahren →</a>
+      <a href="/produkte/{product.id}" class="card-btn">Mehr erfahren</a>
     </div>
   </div>
 </article>
+
+{#if lightboxOpen && hasImages}
+  <ImageLightbox
+    images={product.images}
+    initialIndex={lightboxIndex}
+    productName={product.name}
+    onClose={closeLightbox}
+  />
+{/if}
 
 <style>
   .product-card {
@@ -80,7 +100,7 @@
   }
 
   .card-number {
-    font-size: 0.68rem;
+    font-size: 0.9rem;
     font-weight: 600;
     letter-spacing: 0.15em;
     text-transform: uppercase;

@@ -22,6 +22,27 @@
       "when": 1744502400000,
       "tag": "0002_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1779148800000,
+      "tag": "0003_product_details",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1779235200000,
+      "tag": "0004_beschreibung",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1779321600000,
+      "tag": "0005_nummer",
+      "breakpoints": true
     }
   ]
 }

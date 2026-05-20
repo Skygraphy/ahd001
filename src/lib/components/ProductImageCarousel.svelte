@@ -1,5 +1,5 @@
 <script>
-  let { images, productName } = $props();
+  let { images, productName, onImageClick = null } = $props();
 
   let current = $state(0);
   const total = $derived(images.length);
@@ -36,15 +36,19 @@
   ontouchend={onTouchEnd}
 >
   {#each images as image, i (image.id)}
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <img
       src={image.url}
       alt={image.alt || productName}
       class="slide"
       class:active={i === current}
+      class:clickable={onImageClick !== null}
       loading="lazy"
       decoding="async"
       draggable="false"
       aria-hidden={i !== current}
+      onclick={() => onImageClick?.(current)}
     />
   {/each}
 
@@ -109,6 +113,10 @@
   .slide.active {
     opacity: 1;
     pointer-events: auto;
+  }
+
+  .slide.active.clickable {
+    cursor: pointer;
   }
 
   .arrow {

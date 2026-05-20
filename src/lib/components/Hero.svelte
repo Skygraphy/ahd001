@@ -55,16 +55,33 @@
 
   <!-- Scroll-Indikator -->
   <div class="scroll-indicator" aria-hidden="true">
+    <span class="scroll-label">Mehr entdecken</span>
     <div class="scroll-line"></div>
   </div>
 </section>
 
 <style>
+  :global([data-theme="light"]) .hero-section {
+    --color-cream:     #FAF6F0;
+    --color-lightsand: #D4B896;
+    --color-sand:      #C8A882;
+    --color-midbrown:  #6B4431;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :global(:root:not([data-theme="dark"]):not([data-theme="light"])) .hero-section {
+      --color-cream:     #FAF6F0;
+      --color-lightsand: #D4B896;
+      --color-sand:      #C8A882;
+      --color-midbrown:  #6B4431;
+    }
+  }
+
   .hero-section {
     position: relative;
     min-height: 100svh;
     display: flex;
-    align-items: center;
+    align-items: safe flex-start;
     justify-content: center;
     overflow: hidden;
     background-color: var(--color-nearblack);
@@ -151,14 +168,27 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 5rem 1.5rem 2rem;
+    padding: 18vh 1.5rem 2rem;
     max-width: 52rem;
     width: 100%;
   }
 
   @media (max-width: 480px) {
     .hero-content {
-      padding: 3rem 1rem 2rem;
+      padding: 15vh 1rem 2rem;
+    }
+  }
+
+  @media (max-height: 680px) {
+    .hero-content {
+      padding: 2rem 1.5rem 2rem;
+    }
+    .hero-title {
+      font-size: clamp(3.5rem, 11vw, 7rem);
+      margin-bottom: 1.25rem;
+    }
+    .hero-tagline {
+      margin-bottom: 2rem;
     }
   }
 
@@ -267,6 +297,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+
+  .scroll-label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-sand);
+    margin-bottom: 0.6rem;
+    opacity: 0.7;
   }
 
   .scroll-line {

@@ -1,13 +1,14 @@
 export const prerender = false;
 
 import { getDb } from '$lib/server/db.js';
-import { products, productImages } from '$lib/server/schema.js';
+import { products, productImages, settings } from '$lib/server/schema.js';
 import { eq, asc, inArray } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
 import { fail } from '@sveltejs/kit';
 import { Resend } from 'resend';
 
-export async function load() {
+export async function load({ url }) {
+  const defaultMessage = url.searchParams.get('nachricht') ?? '';
   try {
     const db = getDb(env.DATABASE_URL);
 
@@ -32,10 +33,17 @@ export async function load() {
       imageMap.get(img.product_id).push(img);
     }
 
-    return { products: rows.map(p => ({ ...p, images: imageMap.get(p.id) ?? [] })) };
+    const settingsRows = await db.select().from(settings);
+    const settingsMap  = Object.fromEntries(settingsRows.map(r => [r.key, r.value]));
+
+    return {
+      products:     rows.map(p => ({ ...p, images: imageMap.get(p.id) ?? [] })),
+      defaultMessage,
+      contactEmail: settingsMap.contact_email ?? 'office@altholz-design.at',
+    };
   } catch (err) {
     console.error('DB load error:', err);
-    return { products: [] };
+    return { products: [], defaultMessage, contactEmail: 'office@altholz-design.at' };
   }
 }
 

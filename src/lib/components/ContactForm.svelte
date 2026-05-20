@@ -1,7 +1,7 @@
 <script>
   import { enhance } from '$app/forms';
 
-  let { form } = $props();
+  let { form, defaultMessage = '' } = $props();
 
   // Lokale touched-States für clientseitige Inline-Validierung
   let touched = $state({ name: false, email: false, message: false });
@@ -11,7 +11,7 @@
   // Feldwerte für clientseitige Validierung
   let name    = $state('');
   let email   = $state('');
-  let message = $state('');
+  let message = $state(defaultMessage);
 
   let errors = $derived({
     name:    name.trim().length === 0,
@@ -124,10 +124,6 @@
         Wird gesendet…
       {:else}
         Anfrage senden
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="5" y1="12" x2="19" y2="12"/>
-          <polyline points="12 5 19 12 12 19"/>
-        </svg>
       {/if}
     </button>
 

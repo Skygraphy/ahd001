@@ -1,12 +1,21 @@
 <script>
   import LampSVG from '$lib/components/LampSVG.svelte';
   import ProductImageCarousel from '$lib/components/ProductImageCarousel.svelte';
+  import ImageLightbox from '$lib/components/ImageLightbox.svelte';
 
   let { data } = $props();
-  let { product, details } = $derived(data);
+  let { product } = $derived(data);
+  let inquiryHref = $derived(
+    '/?nachricht=' + encodeURIComponent((data.inquiryTemplate ?? '').replace('{Name}', product.name)) + '#kontakt'
+  );
 
-  let svgVariant = $derived(product.type === 'lamp' ? ((product.id - 1) % 3) + 1 : 4);
-  let hasImages  = $derived(product.images?.length > 0);
+  let svgVariant    = $derived(product.type === 'lamp' ? ((product.id - 1) % 3) + 1 : 4);
+  let hasImages     = $derived(product.images?.length > 0);
+  let lightboxOpen  = $state(false);
+  let lightboxIndex = $state(0);
+
+  function openLightbox(idx) { lightboxIndex = idx; lightboxOpen = true; }
+  function closeLightbox()   { lightboxOpen = false; }
 
   function formatPrice(cents) {
     return '€ ' + (cents / 100).toLocaleString('de-AT', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ',–';
@@ -15,7 +24,7 @@
 
 <svelte:head>
   <title>{product.name} — Altholz Design</title>
-  <meta name="description" content={details?.longDescription?.slice(0, 150) ?? product.description} />
+  <meta name="description" content={product.description} />
 </svelte:head>
 
 <div class="page">
@@ -37,7 +46,11 @@
     <div class="media-col">
       <div class="media-frame">
         {#if hasImages}
-          <ProductImageCarousel images={product.images} productName={product.name} />
+          <ProductImageCarousel
+            images={product.images}
+            productName={product.name}
+            onImageClick={openLightbox}
+          />
         {:else}
           <div class="svg-wrap">
             <LampSVG variant={svgVariant} type={product.type} />
@@ -49,7 +62,7 @@
     <!-- Rechte Spalte: Inhalt -->
     <div class="content-col">
 
-      <span class="eyebrow">N° {product.id.toString().padStart(2, '0')}</span>
+      <span class="eyebrow">{product.nummer ?? 'N° ' + product.id.toString().padStart(2, '0')}</span>
       <h1 class="product-title">{product.name}</h1>
       <p class="product-tagline">{product.description}</p>
 
@@ -57,49 +70,41 @@
         <span class="price">{formatPrice(product.price_cents)}</span>
       </div>
 
-      {#if details}
+      <div class="divider" aria-hidden="true"></div>
+
+      {#if product.beschreibung}
+        <div class="beschreibung-block">
+          <h2 class="section-title">Beschreibung</h2>
+          <div class="beschreibung">{@html product.beschreibung}</div>
+        </div>
+      {/if}
+
+      {#if product.besonderheiten || product.materialien || product.masse}
         <div class="divider" aria-hidden="true"></div>
 
-        <!-- Detailbeschreibung -->
-        <div class="section">
-          <h2 class="section-title">Über dieses Stück</h2>
-          <p class="long-description">{details.longDescription}</p>
-        </div>
-
-        <!-- Highlights -->
-        {#if details.highlights?.length}
+        {#if product.besonderheiten}
           <div class="section">
             <h2 class="section-title">Besonderheiten</h2>
-            <ul class="highlight-list">
-              {#each details.highlights as item}
-                <li class="highlight-item">
-                  <span class="highlight-dot" aria-hidden="true"></span>
-                  {item}
-                </li>
-              {/each}
-            </ul>
+            <div class="html-content">{@html product.besonderheiten}</div>
           </div>
         {/if}
 
-        <!-- Materialien & Maße -->
-        <div class="meta-grid">
-          {#if details.materials?.length}
-            <div class="meta-block">
-              <h2 class="section-title">Materialien</h2>
-              <ul class="meta-list">
-                {#each details.materials as m}
-                  <li>{m}</li>
-                {/each}
-              </ul>
-            </div>
-          {/if}
-          {#if details.dimensions}
-            <div class="meta-block">
-              <h2 class="section-title">Maße</h2>
-              <p class="dimensions">{details.dimensions}</p>
-            </div>
-          {/if}
-        </div>
+        {#if product.materialien || product.masse}
+          <div class="meta-grid">
+            {#if product.materialien}
+              <div class="meta-block">
+                <h2 class="section-title">Materialien</h2>
+                <div class="html-content">{@html product.materialien}</div>
+              </div>
+            {/if}
+            {#if product.masse}
+              <div class="meta-block">
+                <h2 class="section-title">Maße</h2>
+                <div class="html-content">{@html product.masse}</div>
+              </div>
+            {/if}
+          </div>
+        {/if}
       {/if}
 
       <div class="divider" aria-hidden="true"></div>
@@ -111,19 +116,23 @@
       </p>
 
       <!-- CTA unten -->
-      <a href="/#kontakt" class="btn-inquiry btn-inquiry--full">
+      <a href={inquiryHref} class="btn-inquiry btn-inquiry--full">
         Anfrage senden
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="5" y1="12" x2="19" y2="12"/>
-          <polyline points="12 5 19 12 12 19"/>
-        </svg>
       </a>
 
     </div>
   </article>
 
 </div>
+
+{#if lightboxOpen && hasImages}
+  <ImageLightbox
+    images={product.images}
+    initialIndex={lightboxIndex}
+    productName={product.name}
+    onClose={closeLightbox}
+  />
+{/if}
 
 <style>
   .page {
@@ -212,7 +221,7 @@
   /* Content */
   .eyebrow {
     display: block;
-    font-size: 0.7rem;
+    font-size: 1rem;
     font-weight: 600;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -247,10 +256,30 @@
   }
 
   .price {
-    font-size: 1.6rem;
+    font-size: 2.1rem;
     font-weight: 600;
     color: var(--color-brown);
     letter-spacing: -0.01em;
+  }
+
+  .beschreibung-block {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .beschreibung {
+    font-size: 0.95rem;
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--color-lightsand);
+  }
+
+  .beschreibung :global(b),
+  .beschreibung :global(strong) {
+    font-weight: 500;
+    color: var(--color-cream);
   }
 
   .divider {
@@ -273,38 +302,43 @@
     margin-bottom: 0.75rem;
   }
 
-  .long-description {
-    font-size: 0.95rem;
+  /* HTML-Content (besonderheiten, materialien, masse) */
+  .html-content {
+    font-size: 0.9rem;
     font-weight: 300;
     line-height: 1.8;
     color: var(--color-lightsand);
   }
 
-  /* Highlights */
-  .highlight-list {
+  .html-content :global(ul) {
     list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
-  .highlight-item {
+  .html-content :global(li) {
     display: flex;
     align-items: center;
     gap: 0.625rem;
-    font-size: 0.9rem;
-    font-weight: 300;
-    color: var(--color-lightsand);
   }
 
-  .highlight-dot {
+  .html-content :global(li::before) {
+    content: '';
+    display: inline-block;
     width: 5px;
     height: 5px;
     border-radius: 50%;
     background-color: var(--color-sand);
     flex-shrink: 0;
+  }
+
+  .html-content :global(b),
+  .html-content :global(strong) {
+    font-weight: 500;
+    color: var(--color-cream);
   }
 
   /* Meta grid */
@@ -319,26 +353,6 @@
     .meta-grid {
       grid-template-columns: 1fr;
     }
-  }
-
-  .meta-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    font-size: 0.875rem;
-    font-weight: 300;
-    color: var(--color-lightsand);
-    line-height: 1.5;
-  }
-
-  .dimensions {
-    font-size: 0.875rem;
-    font-weight: 300;
-    color: var(--color-lightsand);
-    line-height: 1.7;
   }
 
   /* Handmade note */
@@ -358,7 +372,7 @@
     gap: 0.5rem;
     padding: 0.875rem 1.75rem;
     background-color: var(--color-brown);
-    color: var(--color-cream);
+    color: #FAF6F0;
     font-family: inherit;
     font-size: 0.8rem;
     font-weight: 500;

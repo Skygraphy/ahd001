@@ -23,8 +23,8 @@
 <style>
   :global(body) {
     margin: 0;
-    background-color: #140C06;
-    color: #FAF6F0;
+    background-color: var(--color-bg);
+    color: var(--color-cream);
     font-family: 'DM Sans', ui-sans-serif, sans-serif;
   }
 
@@ -40,7 +40,7 @@
   }
 
   .icon-wrap {
-    color: #7C5232;
+    color: var(--color-brown);
     margin-bottom: 2rem;
     opacity: 0.7;
   }
@@ -50,7 +50,7 @@
     font-weight: 600;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: #C8A882;
+    color: var(--color-sand);
     margin-bottom: 0.75rem;
   }
 
@@ -58,7 +58,7 @@
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-size: clamp(2.5rem, 8vw, 4rem);
     font-weight: 400;
-    color: #FAF6F0;
+    color: var(--color-cream);
     line-height: 1.1;
     margin-bottom: 1.5rem;
   }
@@ -67,7 +67,7 @@
     font-size: clamp(0.95rem, 2vw, 1.1rem);
     font-weight: 300;
     line-height: 1.75;
-    color: #D4B896;
+    color: var(--color-lightsand);
     max-width: 36rem;
   }
 </style>

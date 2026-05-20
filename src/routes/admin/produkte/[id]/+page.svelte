@@ -1,15 +1,35 @@
 <script>
   import { enhance } from '$app/forms';
+  import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
   let { data, form } = $props();
 
   const p = $derived(data.product);
   const priceEuros = $derived((data.product.price_cents / 100).toString());
 
+  // Upload-Modus
+  let uploadMode = $state('file');
+
   // Drag & Drop Reihenfolge
   let images = $state([...data.images]);
+  $effect(() => { images = [...data.images]; });
   let draggedIdx = $state(null);
   let dragOverIdx = $state(null);
   let saving = $state(false);
+  let addImageOpen = $state(false);
+  let confirmOpen = $state(false);
+  let confirmMsg  = $state('');
+  let pendingForm = null;
+
+  function requestDelete(form, msg) {
+    pendingForm = form;
+    confirmMsg  = msg;
+    confirmOpen = true;
+  }
+
+  function executeDelete() {
+    pendingForm?.requestSubmit();
+    pendingForm = null;
+  }
 
   // Pagination Bilder
   const IMG_PER_PAGE = 5;
@@ -60,21 +80,26 @@
 
 <div class="page-header">
   <div>
-    <a href="/admin" class="back-link">← Zur Übersicht</a>
+    <a href="/admin" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+      Zur Übersicht
+    </a>
+    <p class="page-subtitle">{p.nummer ?? 'N° ' + p.id.toString().padStart(2, '0')}</p>
     <h1 class="page-title">{p.name}</h1>
-    <p class="page-subtitle">N° {p.id.toString().padStart(2, '0')}</p>
   </div>
-  <form method="POST" action="?/deleteProduct" use:enhance
-        onsubmit={(e) => { if (!confirm(`"${p.name}" wirklich löschen?`)) e.preventDefault(); }}>
-    <button type="submit" class="btn-danger">Produkt löschen</button>
+  <form method="POST" action="?/deleteProduct" use:enhance>
+    <button type="button" class="btn-danger"
+            onclick={(e) => requestDelete(e.currentTarget.closest('form'), `"${p.name}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`)}>
+      Produkt löschen
+    </button>
   </form>
 </div>
 
 {#if form?.error}
   <div class="alert-error">{form.error}</div>
-{/if}
-{#if form?.success}
-  <div class="alert-success">Gespeichert.</div>
 {/if}
 
 <!-- Produktdaten -->
@@ -82,14 +107,40 @@
   <div class="form-section">
     <h2 class="section-title">Grunddaten</h2>
 
-    <div class="field">
-      <label for="name">Name *</label>
-      <input id="name" name="name" type="text" required value={p.name} />
+    <div class="field-row">
+      <div class="field" style="flex: 0 0 10rem">
+        <label for="nummer">Nummer *</label>
+        <input id="nummer" name="nummer" type="text" placeholder="N° 01" required value={p.nummer ?? ''} />
+      </div>
+      <div class="field" style="flex: 1">
+        <label for="name">Name *</label>
+        <input id="name" name="name" type="text" required value={p.name} />
+      </div>
     </div>
 
     <div class="field">
       <label for="description">Kurzbeschreibung *</label>
       <textarea id="description" name="description" rows="3" required>{p.description}</textarea>
+    </div>
+
+    <div class="field">
+      <label for="beschreibung">Beschreibung <span class="label-hint">(HTML erlaubt)</span></label>
+      <textarea id="beschreibung" name="beschreibung" rows="6">{p.beschreibung ?? ''}</textarea>
+    </div>
+
+    <div class="field">
+      <label for="besonderheiten">Besonderheiten <span class="label-hint">(HTML erlaubt)</span></label>
+      <textarea id="besonderheiten" name="besonderheiten" rows="5">{p.besonderheiten ?? ''}</textarea>
+    </div>
+
+    <div class="field">
+      <label for="materialien">Materialien <span class="label-hint">(HTML erlaubt)</span></label>
+      <textarea id="materialien" name="materialien" rows="5">{p.materialien ?? ''}</textarea>
+    </div>
+
+    <div class="field">
+      <label for="masse">Maße <span class="label-hint">(HTML erlaubt)</span></label>
+      <textarea id="masse" name="masse" rows="3">{p.masse ?? ''}</textarea>
     </div>
 
     <div class="field-row">
@@ -125,7 +176,7 @@
 
   <div class="form-actions">
     <button type="submit" class="btn-primary">Speichern</button>
-    <a href="/produkte/{p.id}" target="_blank" class="btn-secondary">Vorschau ↗</a>
+    <a href="/produkte/{p.id}" target="_blank" class="btn-secondary">Vorschau</a>
   </div>
 </form>
 
@@ -150,6 +201,7 @@
           class="image-row"
           class:dragging={draggedIdx === globalIdx}
           class:drag-over={dragOverIdx === globalIdx && draggedIdx !== globalIdx}
+          role="listitem"
           draggable="true"
           ondragstart={(e) => onDragStart(e, pageIdx)}
           ondragover={(e) => onDragOver(e, pageIdx)}
@@ -174,7 +226,10 @@
           </div>
           <form method="POST" action="?/deleteImage" use:enhance>
             <input type="hidden" name="imageId" value={img.id} />
-            <button type="submit" class="image-delete" title="Bild entfernen">✕</button>
+            <button type="button" class="image-delete" title="Bild entfernen"
+                    onclick={(e) => requestDelete(e.currentTarget.closest('form'), 'Bild wirklich löschen?')}>
+              ✕
+            </button>
           </form>
         </div>
       {/each}
@@ -213,31 +268,45 @@
   {/if}
 
   <!-- Bild hinzufügen -->
-  <details class="add-image-details">
+  <details class="add-image-details" bind:open={addImageOpen}>
     <summary class="add-image-summary">+ Bild hinzufügen</summary>
-    <form method="POST" action="?/addImage" use:enhance class="add-image-form">
-      <div class="field-row">
-        <div class="field" style="flex: 3">
-          <label for="img-url">Bild-URL *</label>
-          <input id="img-url" name="url" type="url" required
-                 placeholder="https://images.pexels.com/…" />
-        </div>
-        <div class="field" style="flex: 2">
-          <label for="img-alt">Alt-Text</label>
-          <input id="img-alt" name="alt" type="text"
-                 placeholder="Beschreibung für Screenreader" />
-        </div>
-        <div class="field" style="flex: 1">
-          <label for="img-sort">Reihenf.</label>
-          <input id="img-sort" name="sort_order" type="number" min="0" value="0" />
-        </div>
+    <form method="POST" action="?/addImage" enctype="multipart/form-data" class="add-image-form"
+          use:enhance={() => ({ update }) => update().then(() => { if (!form?.imageError) addImageOpen = false; })}>
+
+      <!-- Upload-Tabs -->
+      <div class="upload-tabs">
+        <button type="button" class="upload-tab" class:active={uploadMode === 'file'}
+                onclick={() => uploadMode = 'file'}>Datei hochladen</button>
+        <button type="button" class="upload-tab" class:active={uploadMode === 'url'}
+                onclick={() => uploadMode = 'url'}>Externe URL</button>
       </div>
+
+      {#if uploadMode === 'file'}
+        <div class="field">
+          <label for="img-file">Bilddatei <span class="label-hint">(JPEG, PNG, WebP · max. 10 MB)</span></label>
+          <input id="img-file" name="file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                 class="file-input" />
+        </div>
+      {:else}
+        <div class="field">
+          <label for="img-url">Bild-URL</label>
+          <input id="img-url" name="url" type="url" placeholder="https://…" />
+        </div>
+      {/if}
+
+      <div class="field">
+        <label for="img-alt">Alt-Text</label>
+        <input id="img-alt" name="alt" type="text" placeholder="Beschreibung für Screenreader" />
+      </div>
+
       <button type="submit" class="btn-primary" style="align-self: flex-start; margin-top: 0.5rem">
         Bild speichern
       </button>
     </form>
   </details>
 </div>
+
+<ConfirmDialog bind:open={confirmOpen} message={confirmMsg} onConfirm={executeDelete} />
 
 <style>
   .page-header {
@@ -250,27 +319,40 @@
   }
 
   .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--color-sand);
     text-decoration: none;
-    letter-spacing: 0.03em;
-    display: inline-block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.25rem;
+    transition: color 0.2s ease;
   }
 
-  .back-link:hover { color: var(--color-lightsand); }
+  .back-link:hover { color: var(--color-cream); }
+
+  .back-link:focus-visible {
+    outline: 2px solid var(--color-sand);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 
   .page-title {
     font-family: 'Cormorant Garamond', Georgia, serif;
-    font-size: 2rem;
+    font-size: clamp(2rem, 4vw, 3rem);
     font-weight: 400;
     color: var(--color-cream);
     line-height: 1.1;
   }
 
   .page-subtitle {
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     color: var(--color-sand);
     margin-top: 0.2rem;
   }
@@ -285,17 +367,7 @@
     margin-bottom: 1.5rem;
   }
 
-  .alert-success {
-    background-color: rgba(39, 174, 96, 0.1);
-    border: 1px solid rgba(39, 174, 96, 0.3);
-    color: #2ecc71;
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .product-form {
+.product-form {
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -334,6 +406,12 @@
     font-size: 0.8rem;
     font-weight: 500;
     color: var(--color-lightsand);
+  }
+
+  .label-hint {
+    font-weight: 400;
+    font-size: 0.72rem;
+    color: var(--color-midbrown);
   }
 
   .field input,
@@ -458,7 +536,7 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     background-color: var(--color-brown);
-    color: var(--color-cream);
+    color: #FAF6F0;
     padding: 0.1rem 0.35rem;
     border-radius: 3px;
     white-space: nowrap;
@@ -547,7 +625,7 @@
   .img-page-btn.active {
     background-color: var(--color-brown);
     border-color: var(--color-brown);
-    color: var(--color-cream);
+    color: #FAF6F0;
   }
 
   .img-page-btn:disabled {
@@ -588,10 +666,66 @@
     margin-top: 1rem;
   }
 
+  .upload-tabs {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 1px solid rgba(200, 168, 130, 0.15);
+    margin-bottom: 0.25rem;
+  }
+
+  .upload-tab {
+    padding: 0.4rem 0.875rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    font-family: inherit;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--color-sand);
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+    margin-bottom: -1px;
+  }
+
+  .upload-tab:hover   { color: var(--color-cream); }
+  .upload-tab.active  {
+    color: var(--color-cream);
+    border-bottom-color: var(--color-brown);
+  }
+
+  .file-input {
+    background-color: var(--color-bg);
+    border: 1px solid rgba(200, 168, 130, 0.2);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    color: var(--color-lightsand);
+    font-size: 0.85rem;
+    font-family: inherit;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .file-input::file-selector-button {
+    background-color: var(--color-beige);
+    border: none;
+    border-radius: 4px;
+    padding: 0.3rem 0.75rem;
+    color: var(--color-cream);
+    font-size: 0.78rem;
+    font-family: inherit;
+    cursor: pointer;
+    margin-right: 0.75rem;
+    transition: background-color 0.15s ease;
+  }
+
+  .file-input::file-selector-button:hover {
+    background-color: var(--color-brown);
+  }
+
   /* Buttons */
   .btn-primary {
     background-color: var(--color-brown);
-    color: var(--color-cream);
+    color: #FAF6F0;
     border: none;
     border-radius: 6px;
     padding: 0.6rem 1.25rem;

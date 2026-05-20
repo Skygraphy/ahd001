@@ -1,9 +1,13 @@
 <script>
   import { enhance } from '$app/forms';
-  let { data } = $props();
+  let { data, form } = $props();
 
-  let active = $state(false);
-  $effect(() => { active = data.maintenanceMode; });
+  let active       = $state(false);
+  let contactEmail = $state('');
+  let template     = $state('');
+  $effect(() => { active       = data.maintenanceMode; });
+  $effect(() => { contactEmail = data.contactEmail; });
+  $effect(() => { template     = data.inquiryTemplate; });
 </script>
 
 <svelte:head>
@@ -12,7 +16,13 @@
 
 <div class="page-header">
   <div>
-    <a href="/admin" class="back-link">← Zur Übersicht</a>
+    <a href="/admin" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+      Zur Übersicht
+    </a>
     <h1 class="page-title">Einstellungen</h1>
   </div>
 </div>
@@ -57,9 +67,51 @@
     </form>
   </div>
 
-  <div class="preview-link-row">
-    <a href="/wartung" target="_blank" class="preview-link">Wartungsseite in neuem Tab öffnen ↗</a>
-  </div>
+</div>
+
+<div class="settings-card" style="margin-top: 1.5rem">
+  <form method="POST" action="?/saveContactEmail" use:enhance class="setting-row setting-row--col">
+    <div class="setting-info">
+      <p class="setting-label">E-Mail-Adresse (Kontaktbereich)</p>
+      <p class="setting-description">Wird im Kontaktbereich der Website angezeigt.</p>
+    </div>
+    <input
+      name="email"
+      type="email"
+      class="template-input"
+      bind:value={contactEmail}
+    />
+    {#if form?.success}
+      <p class="save-success">Gespeichert.</p>
+    {/if}
+    <div>
+      <button type="submit" class="btn-save">Speichern</button>
+    </div>
+  </form>
+</div>
+
+<div class="settings-card" style="margin-top: 1.5rem">
+  <form method="POST" action="?/saveTemplate" use:enhance class="setting-row setting-row--col">
+    <div class="setting-info">
+      <p class="setting-label">Anfrage-Textvorlage</p>
+      <p class="setting-description">
+        Wird als Vortext im Nachrichtenfeld des Kontaktformulars eingefügt, wenn ein Besucher
+        auf „Anfrage senden" klickt. <code class="placeholder-hint">{'{Name}'}</code> wird durch den Produktnamen ersetzt.
+      </p>
+    </div>
+    <textarea
+      name="template"
+      rows="4"
+      class="template-textarea"
+      bind:value={template}
+    ></textarea>
+    {#if form?.success}
+      <p class="save-success">Gespeichert.</p>
+    {/if}
+    <div>
+      <button type="submit" class="btn-save">Speichern</button>
+    </div>
+  </form>
 </div>
 
 <style>
@@ -68,15 +120,26 @@
   }
 
   .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--color-sand);
     text-decoration: none;
-    letter-spacing: 0.03em;
-    display: inline-block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.25rem;
+    transition: color 0.2s ease;
   }
 
-  .back-link:hover { color: var(--color-lightsand); }
+  .back-link:hover { color: var(--color-cream); }
+
+  .back-link:focus-visible {
+    outline: 2px solid var(--color-sand);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 
   .page-title {
     font-family: 'Cormorant Garamond', Georgia, serif;
@@ -157,7 +220,7 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background-color: var(--color-cream);
+    background-color: #FAF6F0;
     transition: transform 0.2s ease;
     display: block;
   }
@@ -171,17 +234,69 @@
     outline-offset: 2px;
   }
 
-  .preview-link-row {
-    border-top: 1px solid rgba(200, 168, 130, 0.1);
-    padding: 0.875rem 1.5rem;
+
+  .setting-row--col {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
   }
 
-  .preview-link {
-    font-size: 0.78rem;
+  .template-input {
+    background-color: var(--color-bg);
+    border: 1px solid rgba(200, 168, 130, 0.2);
+    border-radius: 6px;
+    padding: 0.55rem 0.875rem;
+    color: var(--color-cream);
+    font-size: 0.9rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .template-input:focus { border-color: var(--color-sand); }
+
+  .template-textarea {
+    background-color: var(--color-bg);
+    border: 1px solid rgba(200, 168, 130, 0.2);
+    border-radius: 6px;
+    padding: 0.6rem 0.875rem;
+    color: var(--color-cream);
+    font-size: 0.9rem;
+    font-family: inherit;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .template-textarea:focus { border-color: var(--color-sand); }
+
+  .placeholder-hint {
+    background-color: rgba(200, 168, 130, 0.12);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    font-size: 0.85em;
     color: var(--color-sand);
-    text-decoration: none;
-    letter-spacing: 0.03em;
+    font-family: monospace;
   }
 
-  .preview-link:hover { color: var(--color-lightsand); }
+  .btn-save {
+    background-color: var(--color-brown);
+    color: #FAF6F0;
+    border: none;
+    border-radius: 6px;
+    padding: 0.55rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .btn-save:hover { background-color: var(--color-midbrown); }
+
+  .save-success {
+    font-size: 0.8rem;
+    color: #2ecc71;
+  }
 </style>

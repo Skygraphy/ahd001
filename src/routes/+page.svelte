@@ -13,5 +13,5 @@
 <main>
   <Hero />
   <ProductGrid products={data.products} />
-  <ContactSection {form} />
+  <ContactSection {form} defaultMessage={data.defaultMessage} contactEmail={data.contactEmail} />
 </main>

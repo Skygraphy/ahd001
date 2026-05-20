@@ -1,6 +1,8 @@
 <script>
   import { browser } from '$app/environment';
 
+  let { fixed = true } = $props();
+
   let theme = $state(
     browser ? (localStorage.getItem('theme') ?? 'dark') : 'dark'
   );
@@ -9,6 +11,8 @@
     if (!browser) return;
     if (theme === 'light') {
       document.documentElement.dataset.theme = 'light';
+    } else if (theme === 'dark') {
+      document.documentElement.dataset.theme = 'dark';
     } else {
       delete document.documentElement.dataset.theme;
     }
@@ -16,7 +20,7 @@
   });
 </script>
 
-<div class="theme-group" role="group" aria-label="Farbschema wählen">
+<div class="theme-group" class:theme-group--fixed={fixed} role="group" aria-label="Farbschema wählen">
   <!-- Dunkel: Mond-Icon -->
   <button
     class="theme-btn"
@@ -75,16 +79,19 @@
 
 <style>
   .theme-group {
-    position: fixed;
-    top: 1.25rem;
-    right: 1.5rem;
-    z-index: 100;
     display: flex;
     gap: 2px;
     background-color: var(--color-surface);
     border: 1px solid rgba(200, 168, 130, 0.2);
     border-radius: 8px;
     padding: 3px;
+  }
+
+  .theme-group--fixed {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.5rem;
+    z-index: 100;
     box-shadow: 0 2px 12px rgba(42, 26, 14, 0.25);
   }
 
