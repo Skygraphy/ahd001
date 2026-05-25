@@ -7,8 +7,21 @@ import { redirect } from '@sveltejs/kit';
 export async function handle({ event, resolve }) {
   const path = event.url.pathname;
 
-  // Admin immer durchlassen
   if (path.startsWith('/admin')) {
+    // Login und Logout brauchen keine Authentifizierung
+    if (path === '/admin/login' || path.startsWith('/admin/logout')) {
+      return resolve(event);
+    }
+
+    const isAuth = event.cookies.get('admin_session') === env.ADMIN_PASSWORD;
+    if (!isAuth) {
+      // POST-Requests (Actions) ohne Session → 403
+      if (event.request.method !== 'GET') {
+        return new Response('Forbidden', { status: 403 });
+      }
+      throw redirect(303, '/admin/login');
+    }
+
     return resolve(event);
   }
 
@@ -24,9 +37,7 @@ export async function handle({ event, resolve }) {
       throw redirect(307, '/');
     }
   } catch (err) {
-    // SvelteKit-Redirects immer weiterwerfen
     if (err?.status && err?.location) throw err;
-    // Bei echtem DB-Fehler normale Seite zeigen
   }
 
   return resolve(event);

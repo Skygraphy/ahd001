@@ -1,5 +1,6 @@
 <script>
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+  import './admin.css';
   let { children, data } = $props();
 </script>
 
@@ -11,7 +12,7 @@
         <span class="brand-title">Backend</span>
       </a>
       <nav class="admin-nav">
-        <a href="/admin" class="nav-link">Produkte</a>
+        <a href="/admin" class="nav-link nav-link--products">Produkte</a>
         <a href="/admin/produkte/neu" class="nav-link nav-link--primary">+ Neu</a>
         <a href="/admin/einstellungen" class="nav-link nav-link--icon" title="Einstellungen">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -20,7 +21,7 @@
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
           </svg>
         </a>
-        <ThemeToggle fixed={false} />
+        <div class="theme-toggle-wrap"><ThemeToggle fixed={false} /></div>
         <form method="POST" action="/admin/logout">
           <button type="submit" class="nav-link nav-link--logout">Abmelden</button>
         </form>
@@ -138,5 +139,11 @@
     .admin-main {
       padding: 2.5rem 2rem;
     }
+  }
+
+  /* Mobile: hide "Produkte" text link (brand already links to /admin) */
+  @media (max-width: 600px) {
+    .nav-link--products { display: none; }
+    .theme-toggle-wrap { display: none; }
   }
 </style>

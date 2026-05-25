@@ -43,6 +43,13 @@
       "when": 1779321600000,
       "tag": "0005_nummer",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1779606771808,
+      "tag": "0006_clean_jackpot",
+      "breakpoints": true
     }
   ]
 }

@@ -83,9 +83,9 @@
         <th class="th-order"></th>
         <th>Nr.</th>
         <th>Name</th>
-        <th>Typ</th>
-        <th>Preis</th>
-        <th>Sichtbar</th>
+        <th class="th-type">Typ</th>
+        <th class="th-price">Preis</th>
+        <th class="th-visible">Sichtbar</th>
         <th></th>
       </tr>
     </thead>
@@ -482,5 +482,24 @@
     font-size: 0.75rem;
     letter-spacing: 0.06em;
     color: var(--color-sand);
+  }
+
+  /* Tablet: hide Preis + Sichtbar so actions stay visible */
+  @media (max-width: 820px) {
+    .th-price, .cell-price,
+    .th-visible, .cell-visible { display: none; }
+  }
+
+  /* Mobile: also hide order arrows and TYP; tighten cell padding */
+  @media (max-width: 600px) {
+    .th-order, .cell-order { display: none; }
+    .th-type, .cell-type { display: none; }
+
+    .product-table thead th,
+    .product-table tbody td { padding: 0.6rem 0.6rem; }
+
+    .cell-id { font-size: 0.68rem; }
+
+    .cell-actions { flex-direction: column; gap: 0.25rem; }
   }
 </style>

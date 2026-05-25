@@ -26,4 +26,5 @@ export const productImages = pgTable('product_images', {
   url:        text('url').notNull(),
   alt:        text('alt').notNull().default(''),
   sort_order: integer('sort_order').notNull().default(0),
+  public_id:  text('public_id'),
 });

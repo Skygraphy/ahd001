@@ -61,7 +61,7 @@
 <style>
   .page-wrapper {
     min-height: 100svh;
-    background-color: var(--color-cream);
+    background-color: var(--color-bg);
     padding: 3rem 1.5rem 6rem;
     max-width: 48rem;
     margin: 0 auto;
@@ -70,12 +70,12 @@
   .back-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
+    gap: 0.4rem;
+    font-size: 0.78rem;
     font-weight: 500;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-midbrown);
+    color: var(--color-sand);
     text-decoration: none;
     margin-bottom: 3rem;
     transition: color 0.2s ease;
@@ -84,27 +84,30 @@
   }
 
   .back-link:hover {
-    color: var(--color-nearblack);
+    color: var(--color-cream);
   }
 
   .back-link:focus-visible {
     outline: 2px solid var(--color-sand);
     outline-offset: 2px;
+    border-radius: 2px;
   }
 
   .impressum h1 {
     font-family: 'Cormorant Garamond', Georgia, ui-serif, serif;
     font-size: clamp(2.5rem, 6vw, 4rem);
     font-weight: 400;
-    color: var(--color-nearblack);
+    color: var(--color-cream);
     letter-spacing: -0.01em;
     margin-bottom: 0.5rem;
   }
 
   .subtitle {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
     color: var(--color-sand);
-    letter-spacing: 0.06em;
     margin-bottom: 3rem;
     padding-bottom: 2rem;
     border-bottom: 1px solid var(--color-beige);
@@ -118,36 +121,39 @@
 
   section:last-child {
     border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
   }
 
   .impressum h2 {
-    font-family: 'Cormorant Garamond', Georgia, ui-serif, serif;
-    font-size: 1.35rem;
-    font-weight: 500;
-    color: var(--color-earth);
-    margin-bottom: 0.75rem;
-    letter-spacing: -0.01em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-sand);
+    margin-bottom: 0.875rem;
   }
 
   .impressum p {
     font-size: 0.95rem;
-    line-height: 1.75;
-    color: var(--color-midbrown);
+    line-height: 1.8;
+    color: var(--color-lightsand);
   }
 
   .impressum a {
-    color: var(--color-brown);
+    color: var(--color-sand);
     text-decoration: underline;
     text-underline-offset: 3px;
     transition: color 0.2s ease;
   }
 
   .impressum a:hover {
-    color: var(--color-nearblack);
+    color: var(--color-cream);
   }
 
   .impressum a:focus-visible {
     outline: 2px solid var(--color-sand);
     outline-offset: 2px;
+    border-radius: 2px;
   }
 </style>
