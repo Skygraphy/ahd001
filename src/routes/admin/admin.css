@@ -173,8 +173,8 @@
 
 .btn-secondary {
   background: transparent;
-  color: var(--color-lightsand);
-  border: 1px solid rgba(200, 168, 130, 0.25);
+  color: var(--color-cream);
+  border: 1px solid rgba(200, 168, 130, 0.3);
   border-radius: 6px;
   padding: 0.6rem 1.25rem;
   font-size: 0.875rem;
@@ -183,12 +183,18 @@
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .btn-secondary:hover {
   background-color: var(--color-beige);
   color: var(--color-cream);
+  border-color: rgba(200, 168, 130, 0.5);
+}
+
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--color-sand);
+  outline-offset: 2px;
 }
 
 /* --- Datei-Input --- */

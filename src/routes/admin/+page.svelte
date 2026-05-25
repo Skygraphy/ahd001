@@ -404,9 +404,9 @@
     font-weight: 500;
     padding: 0.3rem 0.625rem;
     border-radius: 5px;
-    border: 1px solid rgba(200, 168, 130, 0.2);
+    border: 1px solid rgba(200, 168, 130, 0.25);
     background: transparent;
-    color: var(--color-lightsand);
+    color: var(--color-cream);
     text-decoration: none;
     cursor: pointer;
     font-family: inherit;
