@@ -40,10 +40,11 @@ export async function load({ url }) {
       products:     rows.map(p => ({ ...p, images: imageMap.get(p.id) ?? [] })),
       defaultMessage,
       contactEmail: settingsMap.contact_email ?? 'office@altholz-design.at',
+      contactPhone: settingsMap.contact_phone ?? '',
     };
   } catch (err) {
     console.error('DB load error:', err);
-    return { products: [], defaultMessage, contactEmail: 'office@altholz-design.at' };
+    return { products: [], defaultMessage, contactEmail: 'office@altholz-design.at', contactPhone: '' };
   }
 }
 

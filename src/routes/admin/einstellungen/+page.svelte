@@ -2,12 +2,21 @@
   import { enhance } from '$app/forms';
   let { data, form } = $props();
 
-  let active       = $state(false);
-  let contactEmail = $state('');
-  let template     = $state('');
-  $effect(() => { active       = data.maintenanceMode; });
-  $effect(() => { contactEmail = data.contactEmail; });
-  $effect(() => { template     = data.inquiryTemplate; });
+  let active          = $state(false);
+  let contactEmail    = $state('');
+  let contactPhone    = $state('');
+  let template        = $state('');
+  let impressumName    = $state('');
+  let impressumAddress = $state('');
+  let impressumWebsite = $state('');
+
+  $effect(() => { active           = data.maintenanceMode; });
+  $effect(() => { contactEmail     = data.contactEmail; });
+  $effect(() => { contactPhone     = data.contactPhone; });
+  $effect(() => { template         = data.inquiryTemplate; });
+  $effect(() => { impressumName    = data.impressumName; });
+  $effect(() => { impressumAddress = data.impressumAddress; });
+  $effect(() => { impressumWebsite = data.impressumWebsite; });
 </script>
 
 <svelte:head>
@@ -39,6 +48,7 @@
   </div>
 {/if}
 
+<!-- Wartungsmodus -->
 <div class="settings-card">
   <div class="setting-row">
     <div class="setting-info">
@@ -48,7 +58,6 @@
         Der Admin-Bereich bleibt jederzeit erreichbar.
       </p>
     </div>
-
     <form method="POST" action="?/toggleMaintenance" use:enhance={() => {
       return ({ result }) => {
         if (result.type === 'success') active = !active;
@@ -66,49 +75,115 @@
       </button>
     </form>
   </div>
-
 </div>
 
-<div class="settings-card" style="margin-top: 1.5rem">
-  <form method="POST" action="?/saveContactEmail" use:enhance class="setting-row setting-row--col">
-    <div class="setting-info">
-      <p class="setting-label">E-Mail-Adresse (Kontaktbereich)</p>
-      <p class="setting-description">Wird im Kontaktbereich der Website angezeigt.</p>
+<!-- Kontaktdaten -->
+<div class="settings-card">
+  <div class="card-header">
+    <p class="card-title">Kontaktdaten</p>
+    <p class="card-description">Werden im Kontaktbereich der Website angezeigt.</p>
+  </div>
+  <form method="POST" action="?/saveContact" use:enhance class="card-body">
+    <div class="field-group">
+      <label for="s-email" class="field-label">E-Mail-Adresse</label>
+      <input
+        id="s-email"
+        name="email"
+        type="email"
+        class="setting-input"
+        bind:value={contactEmail}
+        placeholder="office@altholz-design.at"
+      />
     </div>
-    <input
-      name="email"
-      type="email"
-      class="template-input"
-      bind:value={contactEmail}
-    />
-    {#if form?.success}
-      <p class="save-success">Gespeichert.</p>
-    {/if}
-    <div>
+    <div class="field-group">
+      <label for="s-phone" class="field-label">Telefonnummer</label>
+      <input
+        id="s-phone"
+        name="phone"
+        type="tel"
+        class="setting-input"
+        bind:value={contactPhone}
+        placeholder="+43 664 512 2640"
+      />
+    </div>
+    <div class="card-footer">
+      {#if form?.contactSaved}
+        <p class="save-success">Gespeichert.</p>
+      {/if}
       <button type="submit" class="btn-save">Speichern</button>
     </div>
   </form>
 </div>
 
-<div class="settings-card" style="margin-top: 1.5rem">
-  <form method="POST" action="?/saveTemplate" use:enhance class="setting-row setting-row--col">
-    <div class="setting-info">
-      <p class="setting-label">Anfrage-Textvorlage</p>
-      <p class="setting-description">
-        Wird als Vortext im Nachrichtenfeld des Kontaktformulars eingefügt, wenn ein Besucher
-        auf „Anfrage senden" klickt. <code class="placeholder-hint">{'{Name}'}</code> wird durch den Produktnamen ersetzt.
-      </p>
+<!-- Impressum -->
+<div class="settings-card">
+  <div class="card-header">
+    <p class="card-title">Impressum</p>
+    <p class="card-description">Angaben für die Impressum-Seite.</p>
+  </div>
+  <form method="POST" action="?/saveImpressumData" use:enhance class="card-body">
+    <div class="field-group">
+      <label for="s-imp-name" class="field-label">Name / Firma</label>
+      <input
+        id="s-imp-name"
+        name="name"
+        type="text"
+        class="setting-input"
+        bind:value={impressumName}
+        placeholder="Altholz Design"
+      />
     </div>
+    <div class="field-group">
+      <label for="s-imp-address" class="field-label">Adresse</label>
+      <textarea
+        id="s-imp-address"
+        name="address"
+        rows="4"
+        class="setting-textarea"
+        bind:value={impressumAddress}
+        placeholder="Musterstraße 1&#10;3400 Klosterneuburg&#10;Österreich"
+      ></textarea>
+    </div>
+    <div class="field-group">
+      <label for="s-imp-website" class="field-label">Website</label>
+      <input
+        id="s-imp-website"
+        name="website"
+        type="url"
+        class="setting-input"
+        bind:value={impressumWebsite}
+        placeholder="https://altholz-design.at"
+      />
+    </div>
+    <div class="card-footer">
+      {#if form?.impressumSaved}
+        <p class="save-success">Gespeichert.</p>
+      {/if}
+      <button type="submit" class="btn-save">Speichern</button>
+    </div>
+  </form>
+</div>
+
+<!-- Anfrage-Textvorlage -->
+<div class="settings-card">
+  <div class="card-header">
+    <p class="card-title">Anfrage-Textvorlage</p>
+    <p class="card-description">
+      Wird als Vortext im Nachrichtenfeld des Kontaktformulars eingefügt, wenn ein Besucher
+      auf „Anfrage senden" klickt. <code class="placeholder-hint">{'{Name}'}</code> wird durch den Produktnamen ersetzt.
+    </p>
+  </div>
+  <form method="POST" action="?/saveTemplate" use:enhance class="card-body">
     <textarea
       name="template"
       rows="4"
-      class="template-textarea"
+      class="setting-textarea"
       bind:value={template}
     ></textarea>
-    {#if form?.success}
-      <p class="save-success">Gespeichert.</p>
-    {/if}
-    <div>
+    <div class="card-footer">
+      {#if form?.templateSaved}
+        <p class="save-success">Gespeichert.</p>
+      {/if}
       <button type="submit" class="btn-save">Speichern</button>
     </div>
   </form>
@@ -167,8 +242,14 @@
     border-radius: 10px;
     overflow: hidden;
     max-width: 640px;
+    margin-top: 1.5rem;
   }
 
+  .settings-card:first-of-type {
+    margin-top: 0;
+  }
+
+  /* Wartungsmodus row */
   .setting-row {
     display: flex;
     align-items: center;
@@ -195,6 +276,78 @@
     line-height: 1.55;
   }
 
+  /* Card with header + body */
+  .card-header {
+    padding: 1.25rem 1.5rem 0;
+    border-bottom: 1px solid rgba(200, 168, 130, 0.1);
+    padding-bottom: 1rem;
+  }
+
+  .card-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-cream);
+    margin-bottom: 0.25rem;
+  }
+
+  .card-description {
+    font-size: 0.8rem;
+    color: var(--color-sand);
+    line-height: 1.55;
+  }
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 0.25rem;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .field-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--color-sand);
+    letter-spacing: 0.04em;
+  }
+
+  .setting-input,
+  .setting-textarea {
+    background-color: var(--color-bg);
+    border: 1px solid rgba(200, 168, 130, 0.2);
+    border-radius: 6px;
+    padding: 0.55rem 0.875rem;
+    color: var(--color-cream);
+    font-size: 0.9rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s ease;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .setting-textarea {
+    padding: 0.6rem 0.875rem;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 5rem;
+  }
+
+  .setting-input:focus,
+  .setting-textarea:focus { border-color: var(--color-sand); }
+
   /* Toggle Switch */
   .toggle-switch {
     position: relative;
@@ -209,9 +362,7 @@
     padding: 0;
   }
 
-  .toggle-switch.on {
-    background-color: #c0392b;
-  }
+  .toggle-switch.on { background-color: #c0392b; }
 
   .toggle-thumb {
     position: absolute;
@@ -225,51 +376,12 @@
     display: block;
   }
 
-  .toggle-switch.on .toggle-thumb {
-    transform: translateX(22px);
-  }
+  .toggle-switch.on .toggle-thumb { transform: translateX(22px); }
 
   .toggle-switch:focus-visible {
     outline: 2px solid var(--color-sand);
     outline-offset: 2px;
   }
-
-
-  .setting-row--col {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-
-  .template-input {
-    background-color: var(--color-bg);
-    border: 1px solid rgba(200, 168, 130, 0.2);
-    border-radius: 6px;
-    padding: 0.55rem 0.875rem;
-    color: var(--color-cream);
-    font-size: 0.9rem;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.15s ease;
-  }
-
-  .template-input:focus { border-color: var(--color-sand); }
-
-  .template-textarea {
-    background-color: var(--color-bg);
-    border: 1px solid rgba(200, 168, 130, 0.2);
-    border-radius: 6px;
-    padding: 0.6rem 0.875rem;
-    color: var(--color-cream);
-    font-size: 0.9rem;
-    font-family: inherit;
-    line-height: 1.6;
-    resize: vertical;
-    outline: none;
-    transition: border-color 0.15s ease;
-  }
-
-  .template-textarea:focus { border-color: var(--color-sand); }
 
   .placeholder-hint {
     background-color: rgba(200, 168, 130, 0.12);
@@ -291,12 +403,19 @@
     font-family: inherit;
     cursor: pointer;
     transition: background-color 0.15s ease;
+    white-space: nowrap;
   }
 
   .btn-save:hover { background-color: var(--color-midbrown); }
 
+  .btn-save:focus-visible {
+    outline: 2px solid var(--color-sand);
+    outline-offset: 2px;
+  }
+
   .save-success {
     font-size: 0.8rem;
     color: #2ecc71;
+    flex: 1;
   }
 </style>

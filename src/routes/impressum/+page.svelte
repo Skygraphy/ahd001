@@ -1,3 +1,11 @@
+<script>
+  let { data } = $props();
+
+  const websiteDisplay = $derived(data.impressumWebsite.replace(/^https?:\/\//, ''));
+  const addressLines   = $derived(data.impressumAddress ? data.impressumAddress.split('\n').filter(Boolean) : []);
+  const phoneHref      = $derived(data.contactPhone ? 'tel:' + data.contactPhone.replace(/\s/g, '') : null);
+</script>
+
 <svelte:head>
   <title>Impressum — Altholz Design</title>
   <meta name="robots" content="noindex" />
@@ -18,18 +26,25 @@
     <section>
       <h2>Unternehmensangaben</h2>
       <p>
-        Altholz Design<br />
-        Musterstraße 1<br />
-        3400 Klosterneuburg<br />
-        Österreich
+        {data.impressumName}
+        {#each addressLines as line}
+          <br />{line}
+        {/each}
       </p>
     </section>
 
     <section>
       <h2>Kontakt</h2>
       <p>
-        Telefon: <a href="tel:+43XXXXXXXXXX">+43 XXX XXX XXXX</a><br />
-        Web: <a href="https://altholz-design.at" target="_blank" rel="noopener">altholz-design.at</a>
+        {#if data.contactEmail}
+          E-Mail: <a href="mailto:{data.contactEmail}">{data.contactEmail}</a><br />
+        {/if}
+        {#if data.contactPhone && phoneHref}
+          Telefon: <a href={phoneHref}>{data.contactPhone}</a><br />
+        {/if}
+        {#if data.impressumWebsite}
+          Web: <a href={data.impressumWebsite} target="_blank" rel="noopener">{websiteDisplay}</a>
+        {/if}
       </p>
     </section>
 
@@ -83,9 +98,7 @@
     padding: 0.25rem 0;
   }
 
-  .back-link:hover {
-    color: var(--color-cream);
-  }
+  .back-link:hover { color: var(--color-cream); }
 
   .back-link:focus-visible {
     outline: 2px solid var(--color-sand);
@@ -147,9 +160,7 @@
     transition: color 0.2s ease;
   }
 
-  .impressum a:hover {
-    color: var(--color-cream);
-  }
+  .impressum a:hover { color: var(--color-cream); }
 
   .impressum a:focus-visible {
     outline: 2px solid var(--color-sand);

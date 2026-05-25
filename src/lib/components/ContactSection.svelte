@@ -1,10 +1,9 @@
 <script>
   import ContactForm from './ContactForm.svelte';
 
-  let { form, defaultMessage = '', contactEmail = 'office@altholz-design.at' } = $props();
+  let { form, defaultMessage = '', contactEmail = 'office@altholz-design.at', contactPhone = '' } = $props();
 
-  const phone     = '+43 664 512 2640';
-  const phoneHref = 'tel:' + phone.replace(/\s/g, '');
+  const phoneHref = $derived(contactPhone ? 'tel:' + contactPhone.replace(/\s/g, '') : null);
 </script>
 
 <section id="kontakt" class="contact-section">
@@ -35,14 +34,16 @@
           </span>
           {contactEmail}
         </a>
-        <a href={phoneHref} class="contact-item">
-          <span class="contact-icon" aria-hidden="true">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.69l3-.06a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.64-1.64a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-            </svg>
-          </span>
-          {phone}
-        </a>
+        {#if contactPhone && phoneHref}
+          <a href={phoneHref} class="contact-item">
+            <span class="contact-icon" aria-hidden="true">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.69l3-.06a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.64-1.64a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </span>
+            {contactPhone}
+          </a>
+        {/if}
       </div>
     </div>
 
